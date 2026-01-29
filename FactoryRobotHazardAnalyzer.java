@@ -10,7 +10,6 @@ import java.util.Scanner;
  * @version 4.0
  */
 public class FactoryRobotHazardAnalyzer {
-
     public static void main(String[] args) {
 
         Scanner sc = new Scanner(System.in);
