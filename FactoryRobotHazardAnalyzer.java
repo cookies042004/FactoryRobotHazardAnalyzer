@@ -1,66 +1,85 @@
 import java.util.Scanner;
 
 /**
- * Factory Robot Hazard Analyzer UC3 - Calculating the hazard risk.
+ * Factory Robot Hazard Analyzer UC4 - Validation using conditional logic.
  *
- * This class takes input from the user, calculates the hazard risk
- * using the given formula, and displays the risk score.
+ * This class validates user inputs and calculates hazard risk
+ * only when inputs are valid.
  *
  * @Developer
- * @version 3.0
+ * @version 4.0
  */
 public class FactoryRobotHazardAnalyzer {
+
     public static void main(String[] args) {
+
         Scanner sc = new Scanner(System.in);
 
-        // Taking Arm Precision value from user
+        // Input: Arm Precision
         System.out.println("Enter Arm precision (0.0 - 1.0): ");
         double armPrecision = sc.nextDouble();
 
-        // Taking Worker Density value from user
+        // Input: Worker Density
         System.out.println("Enter Worker Density (1 - 20): ");
         int workerDensity = sc.nextInt();
 
-        sc.nextLine(); // clear buffer
+        sc.nextLine();
 
-        // Taking Machinery State value from user
+        // Input: Machinery State
         System.out.println("Enter Machinery State (Worn/Faulty/Critical):");
         String machineState = sc.nextLine();
 
-        // Echo inputs
-        System.out.println("Arm Precision   : " + armPrecision);
-        System.out.println("Worker Density  : " + workerDensity);
-        System.out.println("Machinery State : " + machineState);
+        // validation
+        boolean isValid = true;
 
-        // Get machine risk factor
-        double machineRiskFactor = getMachineRiskFactor(machineState);
+        if (armPrecision < 0.0 || armPrecision > 1.0) {
+            System.out.println("Error: Arm precision must be between 0.0 and 1.0.");
+            isValid = false;
+        }
 
-        // Calculate hazard risk
-        double hazardRisk = calculateHazardRisk(
-                armPrecision,
-                workerDensity,
-                machineRiskFactor
-        );
+        if (workerDensity < 1 || workerDensity > 20) {
+            System.out.println("Error: Worker density must be between 1 and 20.");
+            isValid = false;
+        }
 
-        // Display hazard risk score
-        System.out.println("Hazard Risk Score: " + hazardRisk);
+        if (!machineState.equalsIgnoreCase("Worn") &&
+                !machineState.equalsIgnoreCase("Faulty") &&
+                !machineState.equalsIgnoreCase("Critical")) {
+
+            System.out.println("Error: Machinery state must be Worn, Faulty, or Critical.");
+            isValid = false;
+        }
+
+        if (isValid) {
+
+            double machineRiskFactor = getMachineRiskFactor(machineState);
+
+            double hazardRisk = calculateHazardRisk(
+                    armPrecision,
+                    workerDensity,
+                    machineRiskFactor
+            );
+
+            System.out.println("Hazard Risk Score: " + hazardRisk);
+        } else {
+            System.out.println("\nHazard risk calculation aborted due to invalid inputs.");
+        }
 
         sc.close();
     }
 
-    // Method to return machine risk factor
+    // Returns machine risk factor
     public static double getMachineRiskFactor(String machineState) {
-
         if (machineState.equalsIgnoreCase("Worn")) {
             return 1.3;
         } else if (machineState.equalsIgnoreCase("Faulty")) {
             return 2.0;
-        } else { // Critical (assumed valid input)
+        } else { // Critical
             return 3.0;
         }
     }
 
-    // Method to calculate hazard risk
+    // Calculates hazard risk
     public static double calculateHazardRisk(
             double armPrecision,
             int workerDensity,
