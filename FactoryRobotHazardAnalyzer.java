@@ -1,42 +1,49 @@
 import java.util.Scanner;
 
 /**
- * Factory Robot Hazard Analyzer UC5 - Refactored validation and calculation.
+ * Factory Robot Hazard Analyzer UC6 - Custom Exception Handling.
  *
- * Validation and hazard risk calculation are handled in a separate method
- * to keep main() minimal and readable.
+ * Uses RobotSafetyException to handle invalid inputs
+ * in a clean and standardized way.
  *
  * @Developer
- * @version 5.0
+ * @version 6.0
  */
+class RobotSafetyException extends Exception {
+    public RobotSafetyException(String message) {
+        super(message);
+    }
+}
+
 public class FactoryRobotHazardAnalyzer {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
-        // Input collection
-        System.out.println("Enter Arm precision (0.0 - 1.0): ");
-        double armPrecision = sc.nextDouble();
+        try {
+            // Input collection
+            System.out.println("Enter Arm precision (0.0 - 1.0): ");
+            double armPrecision = sc.nextDouble();
 
-        System.out.println("Enter Worker Density (1 - 20): ");
-        int workerDensity = sc.nextInt();
+            System.out.println("Enter Worker Density (1 - 20): ");
+            int workerDensity = sc.nextInt();
 
-        sc.nextLine();
+            sc.nextLine(); // clear buffer
 
-        System.out.println("Enter Machinery State (Worn/Faulty/Critical):");
-        String machineState = sc.nextLine();
+            System.out.println("Enter Machinery State (Worn/Faulty/Critical):");
+            String machineState = sc.nextLine();
 
-        // Call refactored method
-        double hazardRisk = calculateHazardRisk(
-                armPrecision,
-                workerDensity,
-                machineState
-        );
+            // Call method with exception handling
+            double hazardRisk = calculateHazardRisk(
+                    armPrecision,
+                    workerDensity,
+                    machineState
+            );
 
-        // Display result
-        if (hazardRisk != -1) {
+            System.out.println("\n--- Hazard Risk Result ---");
             System.out.println("Hazard Risk Score: " + hazardRisk);
-        } else {
-            System.out.println("\nHazard risk calculation failed due to invalid inputs.");
+
+        } catch (RobotSafetyException e) {
+            System.out.println("\nSafety Error: " + e.getMessage());
         }
 
         sc.close();
@@ -45,25 +52,29 @@ public class FactoryRobotHazardAnalyzer {
     public static double calculateHazardRisk(
             double armPrecision,
             int workerDensity,
-            String machineState) {
+            String machineState)
+            throws RobotSafetyException {
 
         // Validation
         if (armPrecision < 0.0 || armPrecision > 1.0) {
-            System.out.println("Error: Arm precision must be between 0.0 and 1.0.");
-            return -1;
+            throw new RobotSafetyException(
+                    "Arm precision must be between 0.0 and 1.0."
+            );
         }
 
         if (workerDensity < 1 || workerDensity > 20) {
-            System.out.println("Error: Worker density must be between 1 and 20.");
-            return -1;
+            throw new RobotSafetyException(
+                    "Worker density must be between 1 and 20."
+            );
         }
 
         if (!machineState.equalsIgnoreCase("Worn") &&
                 !machineState.equalsIgnoreCase("Faulty") &&
                 !machineState.equalsIgnoreCase("Critical")) {
 
-            System.out.println("Error: Machinery state must be Worn, Faulty, or Critical.");
-            return -1;
+            throw new RobotSafetyException(
+                    "Machinery state must be Worn, Faulty, or Critical."
+            );
         }
 
         // Machine risk factor
