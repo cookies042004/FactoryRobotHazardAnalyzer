@@ -1,58 +1,48 @@
 import java.util.Scanner;
 
 /**
- * Factory Robot Hazard Analyzer UC6 - Custom Exception Handling.
- *
- * Uses RobotSafetyException to handle invalid inputs
- * in a clean and standardized way.
+ * Factory Robot Hazard Analyzer
+ * UC7 - Machinery State Risk Mapping using Enum
  *
  * @Developer
- * @version 6.0
+ * @version7.0
  */
-class RobotSafetyException extends Exception {
-    public RobotSafetyException(String message) {
-        super(message);
-    }
-}
 
 public class FactoryRobotHazardAnalyzer {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
 
         try {
-            // Input collection
-            System.out.println("Enter Arm precision (0.0 - 1.0): ");
+            System.out.print("Enter Arm Precision (0.0 - 1.0): ");
             double armPrecision = sc.nextDouble();
 
-            System.out.println("Enter Worker Density (1 - 20): ");
+            System.out.print("Enter Worker Density (1 - 20): ");
             int workerDensity = sc.nextInt();
+            sc.nextLine(); // consume leftover newline
 
-            sc.nextLine(); // clear buffer
+            System.out.print("Enter Machinery State (Worn/Faulty/Critical): ");
+            String machineStateInput = sc.nextLine();
 
-            System.out.println("Enter Machinery State (Worn/Faulty/Critical):");
-            String machineState = sc.nextLine();
-
-            // Call method with exception handling
-            double hazardRisk = calculateHazardRisk(
+            double risk = calculateHazardRisk(
                     armPrecision,
                     workerDensity,
-                    machineState
+                    machineStateInput
             );
 
-            System.out.println("\n--- Hazard Risk Result ---");
-            System.out.println("Hazard Risk Score: " + hazardRisk);
+            System.out.println("Hazard Risk Score: " + risk);
 
         } catch (RobotSafetyException e) {
-            System.out.println("\nSafety Error: " + e.getMessage());
+            System.out.println("Safety Error: " + e.getMessage());
         }
 
         sc.close();
     }
 
+    // calculate risk
     public static double calculateHazardRisk(
             double armPrecision,
             int workerDensity,
-            String machineState)
+            String machineStateInput)
             throws RobotSafetyException {
 
         // Validation
@@ -68,27 +58,52 @@ public class FactoryRobotHazardAnalyzer {
             );
         }
 
-        if (!machineState.equalsIgnoreCase("Worn") &&
-                !machineState.equalsIgnoreCase("Faulty") &&
-                !machineState.equalsIgnoreCase("Critical")) {
+        // Convert string to enum safely
+        MachineryState state =
+                MachineryState.fromString(machineStateInput);
 
-            throw new RobotSafetyException(
-                    "Machinery state must be Worn, Faulty, or Critical."
-            );
-        }
+        double machineRiskFactor = state.getRiskFactor();
 
-        // Machine risk factor
-        double machineRiskFactor;
-        if (machineState.equalsIgnoreCase("Worn")) {
-            machineRiskFactor = 1.3;
-        } else if (machineState.equalsIgnoreCase("Faulty")) {
-            machineRiskFactor = 2.0;
-        } else {
-            machineRiskFactor = 3.0;
-        }
-
-        // Hazard risk calculation
+        // Hazard formula
         return ((1.0 - armPrecision) * 15.0)
                 + (workerDensity * machineRiskFactor);
+    }
+}
+
+// enum for machineryState
+enum MachineryState {
+
+    WORN(1.3),
+    FAULTY(2.0),
+    CRITICAL(3.0);
+
+    private final double riskFactor;
+
+    MachineryState(double riskFactor) {
+        this.riskFactor = riskFactor;
+    }
+
+    public double getRiskFactor() {
+        return riskFactor;
+    }
+
+    // Convert user input string to enum safely
+    public static MachineryState fromString(String state)
+            throws RobotSafetyException {
+
+        try {
+            return MachineryState.valueOf(state.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RobotSafetyException(
+                    "Unsupported machinery state: " + state
+            );
+        }
+    }
+}
+
+// custom exception
+class RobotSafetyException extends Exception {
+    public RobotSafetyException(String message) {
+        super(message);
     }
 }
